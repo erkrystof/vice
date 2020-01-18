@@ -43,6 +43,11 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include <fcntl.h>
+#include <sys/shm.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <unistd.h>
 
 #include "attach.h"
 #include "diskconstants.h"
@@ -82,6 +87,10 @@ static log_t drive_log = LOG_ERR;
 
 /* If nonzero, at least one vaild drive ROM has already been loaded.  */
 int rom_loaded = 0;
+
+const char *led_shm_name = "vice-drive-led-shm";
+
+void *viceDriveLedShmPointer;
 
 /* ------------------------------------------------------------------------- */
 
@@ -142,6 +151,36 @@ void drive_set_last_read(unsigned int track, unsigned int sector, uint8_t *buffe
     }
 }
 
+void init_drive_led_shm(void) {
+
+	int shm_fd;
+
+	const int SIZE = 16;
+
+	/* create the shared memory object */
+	shm_fd = shm_open(led_shm_name, O_CREAT | O_RDWR, 0666);
+
+	/* configure the size of the shared memory object */
+	ftruncate(shm_fd, SIZE);
+
+	/* memory map the shared memory object */
+	viceDriveLedShmPointer = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
+
+	sprintf(viceDriveLedShmPointer, "%s", "80900010");
+}
+
+void update_shm_drive_status(unsigned int driveNumber,
+		int driveLedStatus) {
+//	log_warning(drive_log, "Hey! Drive %d Status : %d", driveNumber,
+//			driveLedStatus);
+
+	if (drive_init_was_called) {
+		((char*) viceDriveLedShmPointer)[(driveNumber * 2) + 1] = (
+				driveLedStatus == 0 ? '0' : '1');
+	}
+}
+
+
 /* ------------------------------------------------------------------------- */
 
 /* Initialize the hardware-level drive emulation (should be called at least
@@ -154,6 +193,8 @@ int drive_init(void)
     if (rom_loaded) {
         return 0;
     }
+
+    init_drive_led_shm();
 
     drive_init_was_called = 1;
 
@@ -737,6 +778,7 @@ static void drive_led_update(drive_t *drive, drive_t *drive0)
 
     if (led_pwm != drive->led_last_pwm
         || my_led_status != drive->old_led_status) {
+    	update_shm_drive_status(drive->mynumber, my_led_status);
         ui_display_drive_led(drive->mynumber, led_pwm,
                              (my_led_status & 2) ? 1000 : 0);
         drive->led_last_pwm = led_pwm;

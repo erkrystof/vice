@@ -356,6 +356,8 @@ extern struct drive_context_s *drive_context[DRIVE_NUM];
 
 extern int rom_loaded;
 
+extern void init_drive_led_shm(void);
+extern void update_shm_drive_status(unsigned int driveNumber, int driveLedStatus);
 extern int drive_init(void);
 extern int drive_enable(struct drive_context_s *drv);
 extern void drive_disable(struct drive_context_s *drv);

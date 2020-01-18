@@ -3313,6 +3313,12 @@ if test x"$with_jpeg" != "xno" ; then
 fi
 
 LIBS="$old_LIBS"
+
+dnl Patch to add -lrt for shared memory IPC work
+echo "Patch to add -lrt for shared memory IPC work"
+old_LIBS="$LIBS"
+LIBS="$LIBS -lrt"
+
 AC_SUBST(GFXOUTPUT_DRIVERS)
 AC_SUBST(GFXOUTPUT_LIBS)
 
