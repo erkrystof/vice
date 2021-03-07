@@ -36,6 +36,8 @@ cd SDL2-2.0.14
 #git clone --single-branch --branch retropie-2.0.14 https://github.com/erkrystof/SDL-mirror
 #cd SDL-mirror
 
+log "Config and Compile SDL 2.0.14"
+
 #update debian package rules and control files, which update dependencies specific
 #to the raspberry pi and enables kmsdrm
  
@@ -67,10 +69,14 @@ sudo dpkg --remove libsdl2 libsdl2-dev
 #move to where those .deb packages are (right above us)
 cd ~/sdl-work
  
+log "Install our custom SDL 2.0.14"
+
 if ! sudo dpkg -i libsdl2-2.0-0_2.0.10_armhf.deb libsdl2-dev_2.0.10_armhf.deb ; then
     sudo apt-get -y -f --no-install-recommends install
 fi
 echo "libsdl2-dev hold" | sudo dpkg --set-selections
+
+log "Download VICE dependencies"
 
 #vice dependencies
 sudo apt install libmpg123-dev libpng-dev zlib1g-dev libasound2-dev libvorbis-dev libflac-dev \
@@ -81,12 +87,13 @@ sudo apt install libmpg123-dev libpng-dev zlib1g-dev libasound2-dev libvorbis-de
 mkdir ~/vice-src
 cd ~/vice-src
 
-wget -O vice-3.5.tar.gz https://sourceforge.net/projects/vice-emu/files/releases/vice-3.5.tar.gz/download
+log "Download VICE 3.5"
 
+wget -O vice-3.5.tar.gz https://sourceforge.net/projects/vice-emu/files/releases/vice-3.5.tar.gz/download
 tar xvfz vice-3.5.tar.gz
 
+log "Build VICE 3.5"
 cd vice-3.5
-
 ./autogen.sh 
 
  #pass --prefix=<dir> if you want the binaries elsewhere
