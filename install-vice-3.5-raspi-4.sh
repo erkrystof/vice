@@ -14,6 +14,8 @@ log "Normal Raspi update/upgrade path"
 sudo apt update
 sudo apt full-upgrade
 
+log "SDL2 Dependencies (for kmsdrm)"
+
 #install dependencies for how we'll compile SDL2 and install the output package
 sudo apt install lsb-release git dialog wget gcc g++ build-essential unzip xmlstarlet \
   python3-pyudev ca-certificates libasound2-dev libudev-dev libibus-1.0-dev libdbus-1-dev \
@@ -22,12 +24,17 @@ sudo apt install lsb-release git dialog wget gcc g++ build-essential unzip xmlst
   libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
   devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev 
   
- 
+
 mkdir ~/sdl-work
 cd ~/sdl-work
 
-git clone --single-branch --branch retropie-2.0.14 https://github.com/erkrystof/SDL-mirror
-cd SDL-mirror
+log "Download SDL 2.0.14"
+
+wget https://libsdl.org/release/SDL2-2.0.14.tar.gz
+tar xvfz SDL2-2.0.14.tar.gz
+cd SDL2-2.0.14
+#git clone --single-branch --branch retropie-2.0.14 https://github.com/erkrystof/SDL-mirror
+#cd SDL-mirror
 
 #update debian package rules and control files, which update dependencies specific
 #to the raspberry pi and enables kmsdrm
@@ -57,7 +64,7 @@ sudo mv /opt/vc/include/brcmGLES2 /opt/vc/include/GLES2
 #remove any old installed library
 sudo dpkg --remove libsdl2 libsdl2-dev
  
-#as sudo in a shell... and move to where those .deb packages are
+#move to where those .deb packages are (right above us)
 cd ~/sdl-work
  
 if ! sudo dpkg -i libsdl2-2.0-0_2.0.10_armhf.deb libsdl2-dev_2.0.10_armhf.deb ; then
