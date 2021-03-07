@@ -23,7 +23,7 @@ sudo apt install lsb-release git dialog wget gcc g++ build-essential unzip xmlst
   fcitx-libs-dev libsndio-dev libx11-dev libxcursor-dev libxext-dev libxi-dev libxinerama-dev \
   libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
   libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
-  devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev 
+  devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev -y
   
 
 mkdir ~/sdl-work
@@ -82,7 +82,7 @@ log "Download VICE dependencies"
 #vice dependencies
 sudo apt install libmpg123-dev libpng-dev zlib1g-dev libasound2-dev libvorbis-dev libflac-dev \
  libpcap-dev automake bison flex subversion libjpeg-dev portaudio19-dev texinfo xa65 dos2unix \
- libsdl2-image-dev
+ libsdl2-image-dev -y
 
 
 mkdir ~/vice-src
