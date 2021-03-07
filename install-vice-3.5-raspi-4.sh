@@ -1,7 +1,15 @@
 #! /bin/bash
 set -e
 
-echo Normal Raspi update/upgrade path
+log () {
+  echo ""
+  echo "****************************************"
+  echo "* $1"
+  echo "****************************************"
+  echo ""
+}
+
+log "Normal Raspi update/upgrade path"
 
 sudo apt update
 sudo apt full-upgrade
