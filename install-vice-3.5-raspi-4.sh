@@ -9,6 +9,7 @@ log () {
   echo ""
 }
 
+log "Installing VICE 3.5 on RasPi 4"
 #log "Normal Raspi update/upgrade path"
 
 #sudo apt update
