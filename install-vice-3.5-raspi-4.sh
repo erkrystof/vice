@@ -9,10 +9,10 @@ log () {
   echo ""
 }
 
-log "Normal Raspi update/upgrade path"
+#log "Normal Raspi update/upgrade path"
 
-sudo apt update
-sudo apt full-upgrade
+#sudo apt update
+#sudo apt full-upgrade
 
 log "SDL2 Dependencies (for kmsdrm)"
 
