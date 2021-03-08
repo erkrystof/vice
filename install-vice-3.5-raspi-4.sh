@@ -9,7 +9,6 @@ log () {
   echo ""
 }
 
-
 log "Installing VICE 3.5 on RasPi 4"
 #log "Normal Raspi update/upgrade path"
 
@@ -29,18 +28,19 @@ sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzi
   libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
   libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
   devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev 
-  
-
-mkdir ~/sdl-work
+ 
+if [ -d ~/sdl-work ] 
+then
+    echo "Directory sdl-work exists already.  Heading on in." 
+else
+    mkdir ~/sdl-work
+fi
 cd ~/sdl-work
 
 log "Download SDL 2.0.14"
 
-wget https://libsdl.org/release/SDL2-2.0.14.tar.gz
-tar xvfz SDL2-2.0.14.tar.gz
-cd SDL2-2.0.14
-#git clone --single-branch --branch retropie-2.0.14 https://github.com/erkrystof/SDL-mirror
-#cd SDL-mirror
+git clone --single-branch --branch retropie-2.0.14 https://github.com/erkrystof/SDL-mirror
+cd SDL-mirror
 
 log "Config and Compile SDL 2.0.14"
 
@@ -77,7 +77,7 @@ cd ~/sdl-work
  
 log "Install our custom SDL 2.0.14"
 
-if ! sudo dpkg -i libsdl2-2.0-0_2.0.10_armhf.deb libsdl2-dev_2.0.10_armhf.deb ; then
+if ! sudo dpkg -i libsdl2-2.0-0_2.0.14_armhf.deb libsdl2-dev_2.0.14_armhf.deb ; then
     sudo apt-get -y -f --no-install-recommends install
 fi
 echo "libsdl2-dev hold" | sudo dpkg --set-selections
@@ -89,8 +89,12 @@ sudo apt install libmpg123-dev libpng-dev zlib1g-dev libasound2-dev libvorbis-de
  libpcap-dev automake bison flex subversion libjpeg-dev portaudio19-dev texinfo xa65 dos2unix \
  libsdl2-image-dev -y
 
-
-mkdir ~/vice-src
+if [ -d ~/vice-src ]
+then
+    echo "Directory vice-src exists already.  Heading on in."
+else
+    mkdir ~/vice-src
+fi
 cd ~/vice-src
 
 log "Download VICE 3.5"
@@ -108,4 +112,3 @@ cd vice-3.5
 make -j $(nproc)
 make install
 
- 
