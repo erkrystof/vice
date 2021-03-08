@@ -39,6 +39,7 @@ cd ~/sdl-work
 
 log "Download SDL 2.0.14"
 
+rm -rf ./SDL-mirror
 git clone --single-branch --branch retropie-2.0.14 https://github.com/erkrystof/SDL-mirror
 cd SDL-mirror
 
