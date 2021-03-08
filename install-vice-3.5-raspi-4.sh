@@ -8,9 +8,6 @@ log () {
   echo "****************************************"
   echo ""
 }
-getDependency() {
-  for pkg in "$@"; do
-}
 
 
 log "Installing VICE 3.5 on RasPi 4"
