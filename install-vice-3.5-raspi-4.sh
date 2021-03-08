@@ -107,8 +107,8 @@ log "Build VICE 3.5"
 cd vice-3.5
 ./autogen.sh 
 
- #pass --prefix=<dir> if you want the binaries elsewhere
-./configure --enable-sdlui2 --without-oss --enable-ethernet \
+ #change --prefix=<dir> if you want the binaries elsewhere
+./configure --prefix=/home/pi/vice-3.5 --enable-sdlui2 --without-oss --enable-ethernet \
  --disable-catweasel --without-pulse --enable-x64 --disable-pdf-docs --with-fastsid
 make -j $(nproc)
 make install
