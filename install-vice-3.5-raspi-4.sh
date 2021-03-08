@@ -20,7 +20,7 @@ log "SDL2 Dependencies (for kmsdrm)"
 
 #install dependencies for how we'll compile SDL2 and install the output package
 sudo apt update -y
-sudo apt upgrade -y
+sudo apt full-upgrade -y
 
 
 sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzip xmlstarlet \
