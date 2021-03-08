@@ -8,6 +8,10 @@ log () {
   echo "****************************************"
   echo ""
 }
+getDependency() {
+  for pkg in "$@"; do
+}
+
 
 log "Installing VICE 3.5 on RasPi 4"
 #log "Normal Raspi update/upgrade path"
@@ -18,9 +22,11 @@ log "Installing VICE 3.5 on RasPi 4"
 log "SDL2 Dependencies (for kmsdrm)"
 
 #install dependencies for how we'll compile SDL2 and install the output package
-sudo apt update
+sudo apt update -y
+sudo apt upgrade -y
 
-sudo apt install -y lsb-release git dialog wget gcc g++ build-essential unzip xmlstarlet \
+
+sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzip xmlstarlet \
   python3-pyudev ca-certificates libasound2-dev libudev-dev libibus-1.0-dev libdbus-1-dev \
   fcitx-libs-dev libsndio-dev libx11-dev libxcursor-dev libxext-dev libxi-dev libxinerama-dev \
   libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
