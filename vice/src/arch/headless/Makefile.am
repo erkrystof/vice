@@ -7,7 +7,9 @@ extra_includes =
 endif
 
 AM_CPPFLAGS = \
+	@VICE_CPPFLAGS@ \
 	@ARCH_INCLUDES@ \
+	-I$(top_srcdir)/src/arch/shared \
 	$(extra_includes) \
 	-I$(top_builddir)/src \
 	-I$(top_srcdir)/src \
@@ -32,10 +34,18 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/imagecontents \
 	-I$(top_srcdir)/src/monitor \
 	-I$(top_srcdir)/src/tapeport \
-	-I$(top_srcdir)/src/hvsc
+	-I$(top_srcdir)/src/hvsc \
+	-I$(top_srcdir)/src/datasette
 
+AM_CFLAGS = @VICE_CFLAGS@
 
-noinst_LIBRARIES = libarch.a
+AM_CXXFLAGS = @VICE_CXXFLAGS@
+
+AM_OBJCFLAGS = @VICE_OBJCFLAGS@
+
+AM_LDFLAGS = @VICE_LDFLAGS@
+
+noinst_LIBRARIES = libarch.a libtoolarch.a
 
 libarch_a_SOURCES = \
 	archdep.c \
@@ -46,7 +56,6 @@ libarch_a_SOURCES = \
 	uimon.c \
 	uistatusbar.c \
 	main.c \
-	signals.c \
 	video.c \
 	vsidui.c \
 	vsyncarch.c \
@@ -59,12 +68,14 @@ libarch_a_SOURCES = \
 	petui.c \
 	plus4ui.c \
 	cbm2ui.c \
-	cbm5x0ui.c
+	cbm5x0ui.c \
+	c64ui.c
+
+libtoolarch_a_SOURCES = \
+	archdep.c
 
 EXTRA_DIST = \
 	archdep.h \
-	archdep_unix.h \
-	archdep_win32.h \
 	coproc.h \
 	debug_headless.h \
 	joy.h \

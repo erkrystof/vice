@@ -13,7 +13,8 @@ $ sudo xcodebuild -license accept
 Install the build tools and dependencies
 --------------------------------------------------------------------------------
 
-Using either MacPorts or Homebrew to fetch dependencies is supported.
+Using either MacPorts or Homebrew to fetch dependencies is supported. If both
+are installed, MacPorts (/opt/local) will be win over Homebrew (/usr/local).
 
 You only need one of SDL2 or Gtk3 (actually neither if you are just building the
 headless port), but of course you can install both and you'll be able to do both
@@ -23,7 +24,7 @@ SDL2 and Gtk3 builds.
 MacPorts:
 ---------
 
-$ sudo port install autoconf automake pkgconfig xa lame texinfo texlive-basic
+$ sudo port install autoconf automake pkgconfig xa lame texinfo texlive-basic dos2unix
 
 SDL2:
 
@@ -32,7 +33,7 @@ $ sudo port install libsdl2 libpng
 Gtk3:
 
 $ sudo port install gtk3 +quartz
-$ sudo port install librsvg adwaita-icon-theme
+$ sudo port install librsvg adwaita-icon-theme glew
 
 ---------
 Homebrew:
@@ -57,7 +58,7 @@ If you're going to be doing lots of building or various configurations (SDL2,
 Gtk3 etc) then you'll probably want to create a separate build directory for each
 configuration.
 
-$ BUILD_LOCATION="<BUILD LOCATION>""
+$ BUILD_LOCATION="<BUILD LOCATION>"
 $ mkdir -p "$BUILD_LOCATION"
 $ cd "$BUILD_LOCATION"
 $ VICE_PATH="<VICE SOURCE PATH>"
@@ -71,18 +72,13 @@ $ sudo make install
 
 Gtk3:
 
-You can remove --disable-hwscale if you want to test OpenGL support. Whilst
-OpenGL support works, it doesn't improve things. It appears that gtkglarea will
-scale the texture using GPU, then copy it back into host memory to be
-layered in with the rest of the Gtk content - slow.
+Now that a bug in GTK3 has been fixed, OpenGL rendering on macOS is now fast.
+No need to diable it anymore.
 
-$ "$VICE_PATH"/configure --enable-native-gtk3ui --disable-hwscale
+$ "$VICE_PATH"/configure --enable-native-gtk3ui
 $ make -j
 $ sudo make install
 
-Once you have installed once, you can create a symlink that allows you to run
-the built binaries directly:
+Once you have installed once, you can run newly built binaries directly:
 
-$ ln -s /usr/local/lib
 $ ./src/x64sc
-

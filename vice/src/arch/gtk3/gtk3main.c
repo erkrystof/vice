@@ -30,24 +30,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <gtk/gtk.h>
 
+#include "archdep.h"
 #include "log.h"
 #include "machine.h"
 #include "main.h"
+#include "render_thread.h"
+#include "ui.h"
 #include "video.h"
-
-/* For the ugly hack below */
-#ifdef WIN32_COMPILE
-# include "windows.h"
-#endif
-
-/* For the literally ugly hack below */
-#ifdef MACOSX_SUPPORT
-#include <objc/runtime.h>
-#include <objc/message.h>
-#include <CoreFoundation/CFString.h>
-#define OBJC_MSGSEND_FUNC_CAST(...) ((id (*)(__VA_ARGS__))objc_msgSend)
-#endif
 
 /** \brief  Program driver
  *
@@ -62,11 +53,6 @@
  */
 int main(int argc, char **argv)
 {
-#ifdef MACOSX_SUPPORT
-    id dictionary;
-    id defaults;
-#endif
-
     /*
      * Ugly hack to make the VTE-based monitor behave on 32-bit Windows.
      *
@@ -84,41 +70,50 @@ int main(int argc, char **argv)
 #endif
 
     /*
-     * Literally ugly hack to disable retina support, saving 20-25% host cpu.
-     *
-     * macOS Gtk is currently too slow for vice to run well in retina mode.
-     * This code needs to run before NSApplication is initialised which is
-     * why it is in here.
-     *
-     * --dqh
+     * Each thread in VICE, including main, needs to call this before anything
+     * else. Basically this is for init COM on Windows.
      */
-#ifdef MACOSX_SUPPORT
-    /* [[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"AppleMagnifiedMode" : @YES }]; */
-    dictionary =
-        OBJC_MSGSEND_FUNC_CAST(id, SEL, id, CFStringRef)(
-            (id)objc_getClass("NSDictionary"),
-            sel_getUid("dictionaryWithObject:forKey:"),
-            OBJC_MSGSEND_FUNC_CAST(id, SEL, BOOL)((id)objc_getClass("NSNumber"), sel_getUid("numberWithBool:"), YES),
-            CFSTR("AppleMagnifiedMode"));
+    archdep_thread_init();
 
-    defaults = OBJC_MSGSEND_FUNC_CAST(id, SEL)((id)objc_getClass("NSUserDefaults"), sel_getUid("standardUserDefaults"));
-    OBJC_MSGSEND_FUNC_CAST(id, SEL, id)(defaults, sel_getUid("registerDefaults:"), dictionary);
-#endif
+    /*
+     * The exit code needs to know what thread is the main thread, so that if
+     * archdep_vice_exit() is called from any other thread, it knows it needs
+     * to asynchronously call exit() on the main thread.
+     */
+    archdep_set_main_thread();
 
-    return main_program(argc, argv);
+    int init_result = main_program(argc, argv);
+    if (init_result) {
+        return init_result;
+    }
+
+    gtk_main();
+
+    /*
+     * Because gtk_main will  never return, we call archdep_thread_shutdown()
+     * for the main thread in the exit subsystem rather than here.
+     */
+    
+    return 0;
 }
-
 
 /** \brief  Exit handler
  */
 void main_exit(void)
 {
-    /* Disable SIGINT.  This is done to prevent the user from keeping C-c
-       pressed and thus breaking the cleanup process, which might be
-       dangerous.  */
-    signal(SIGINT, SIG_IGN);
+    /*
+     * The render thread MUST be joined before the platform exit() is called
+     * otherwise gl calls can deadlock
+     */
+    render_thread_shutdown_and_join_all();
 
-    log_message(LOG_DEFAULT, "\nExiting...");
+    /*
+     * This needs to happen before machine_shutdown as various things get freed
+     * in that process.
+     */
+    ui_exit();
 
+    vice_thread_shutdown();
+    
     machine_shutdown();
 }

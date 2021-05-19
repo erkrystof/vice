@@ -362,8 +362,6 @@ int vdrive_iec_open(vdrive_t *vdrive, const uint8_t *name, unsigned int length,
         cmd_parse->cmd = name;
         cmd_parse->cmdlength = length;
         cmd_parse->secondary = secondary;
-        /* make sure this is zero, since it isn't set below */
-        cmd_parse->recordlength = 0;
         cmd_parse->drive = -1;
 
         rc = cbmdos_command_parse(cmd_parse);
@@ -516,6 +514,7 @@ static int iec_write_sequential(vdrive_t *vdrive, bufferinfo_t *bi, int length)
      */
     if (bi->track == 0) {
         /* allocate the first sector */
+        s_new = 0;
         retval = vdrive_bam_alloc_first_free_sector(vdrive, &t_new, &s_new);
         if (retval < 0) {
             vdrive_command_set_error(vdrive, CBMDOS_IPE_DISK_FULL, 0, 0);

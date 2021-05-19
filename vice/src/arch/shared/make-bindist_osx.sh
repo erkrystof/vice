@@ -104,13 +104,14 @@ copy_lib_recursively () {
   local lib_basename=`basename "$lib"`
   local lib_dest="$APP_LIB/$lib_basename"
 
-  if [ -e "$lib_dest" ]; then
+  if [ "$lib" = "" ] || [ -e "$lib_dest" ]; then
     return
   fi
 
   cp "$lib" "$lib_dest"
+  chmod 644 "$lib_dest"
 
-  # Process this lib's libs
+  # copy this lib's libs
   LIB_LIBS=`otool -L "$lib_dest" | egrep '^\s+/(opt|usr)/local/' | grep -v "$lib_basename" | awk '{print $1}'`
 
   for lib_lib in $LIB_LIBS; do
@@ -118,11 +119,7 @@ copy_lib_recursively () {
   done
 }
 
-code_sign_file () {
-  codesign -s "$CODE_SIGN_ID" --timestamp --options runtime -f "$1"
-}
-
-# --- create bundle ---
+# --- create bundle ------------------------------------------------------------
 
 BUNDLE="VICE"
 APP_NAME=$BUILD_DIR/$BUNDLE.app
@@ -131,16 +128,14 @@ APP_MACOS=$APP_CONTENTS/MacOS
 APP_RESOURCES=$APP_CONTENTS/Resources
 APP_ETC=$APP_RESOURCES/etc
 APP_SHARE=$APP_RESOURCES/share
-APP_COMMON=$APP_RESOURCES/lib/vice/common
-APP_ICONS=$APP_RESOURCES/lib/vice/icons
-APP_ROMS=$APP_RESOURCES/lib/vice
-APP_DOCS=$APP_RESOURCES/lib/vice/doc
+APP_COMMON=$APP_SHARE/vice/common
+APP_ICONS=$APP_SHARE/vice/icons
+APP_ROMS=$APP_SHARE/vice
+APP_DOCS=$APP_SHARE/vice/doc
 APP_BIN=$APP_RESOURCES/bin
 APP_LIB=$APP_RESOURCES/lib
 
-# --- use platypus for bundling ---
-PLATYPUS_PATH="/opt/local/bin/platypus"
-if [ ! -e "$PLATYPUS_PATH" ]; then
+if ! which -s platypus; then
   echo "ERROR: platypus not found (sudo port install platypus)"
   exit 1
 fi
@@ -151,21 +146,24 @@ make_app_bundle() {
   local app_launcher=$2
   local output=$(mktemp)
 
-  $PLATYPUS_PATH \
-      -a $app_name \
-      -o None \
-      -i "$RUN_PATH/Resources/VICE.icns" \
-      -V "$VICE_VERSION" \
-      -u "The VICE Team" \
-      -I "org.viceteam.$app_name" \
-      -c "$app_launcher" \
-      -D \
-      -R \
-      -B \
-      "$app_path" \
-      2&>1 > $output
+  platypus \
+    -a $app_name \
+    -o None \
+    -i "$RUN_PATH/Resources/VICE.icns" \
+    -V "$VICE_VERSION" \
+    -u "The VICE Team" \
+    -I "org.viceteam.$app_name" \
+    -c "$app_launcher" \
+    -D \
+    -X $DROP_TYPES \
+    -R \
+    -B \
+    "$app_path" \
+    2&>1 > $output
   
-  if [ $? -ne 0 ]; then
+  PLATYPUS_STATUS=$?
+  
+  if [ $PLATYPUS_STATUS -ne 0 ]; then
     echo "ERROR: platypus failed with $PLATYPUS_STATUS. Output:"
     cat $output
     rm $output
@@ -200,7 +198,8 @@ mkdir -p $APP_BIN
 mkdir -p $APP_LIB
 
 
-# copy roms and data into bundle
+# --- copy roms and data into bundle -------------------------------------------
+
 echo -n "[common ROMs] "
 for rom in $ROM_COMMON ; do
   if [ ! -d $TOP_DIR/data/$rom ]; then
@@ -226,15 +225,17 @@ if [ -d etc ]; then
   echo -n "] "
 fi
 
-# ready with bundle
 echo  
 
-# --- embed binaries ---
+
+# --- embed emu binaries -------------------------------------------------------
+
 if [ "$BUNDLE" = "VICE" ]; then
   BINARIES="$EMULATORS"
 else
   BINARIES="$BUNDLE"
 fi
+
 for emu in $BINARIES ; do
   echo -n "     embedding $emu: "
 
@@ -256,10 +257,7 @@ for emu in $BINARIES ; do
   LOCAL_LIBS=`otool -L $APP_BIN/$emu | egrep '^\s+/(opt|usr)/local/' | awk '{print $1}'`
 
   for lib in $LOCAL_LIBS; do
-      copy_lib_recursively $lib
-
-      # relink the emu binary to the relative lib copy
-      install_name_tool -change $lib @executable_path/../lib/$(basename $lib) $APP_BIN/$emu
+    copy_lib_recursively $lib
   done
 
   # copy emulator ROM
@@ -275,12 +273,6 @@ for emu in $BINARIES ; do
   copy_tree "$TOP_DIR/data/$ROM" "$APP_ROMS/$ROM"
   (cd $APP_ROMS/$ROM && eval "rm -f $ROM_REMOVE")
 
-  # Sign the relinked emu binary
-  if [ -n "$CODE_SIGN_ID" ]; then
-    echo -n "[sign] "
-    code_sign_file $APP_BIN/$emu
-  fi
-
   echo -n "[platypus] "
   make_app_bundle $emu $RUN_PATH/$REDIRECT_LAUNCHER
 
@@ -289,10 +281,11 @@ for emu in $BINARIES ; do
 done
 
 
-# --- runtime depenencies ---
+# --- emu runtime depenencies --------------------------------------------------
+
 cp "$TOP_DIR/src/arch/shared/macOS-common-runtime.sh" "$APP_BIN/common-runtime.sh"
 
-# Can use dtrace in a terminal and run vsid.app to find runtime libs that aren't directly linked:
+# Can use dtrace in a terminal and run x64sc.app to find runtime libs that aren't directly linked:
 # sudo dtrace -n 'syscall::*stat*:entry /execname=="x64sc"/ { printf("%s", copyinstr(arg0)); }'
 # sudo dtrace -n 'syscall::*open*:entry /execname=="x64sc"/ { printf("%s", copyinstr(arg0)); }'
 
@@ -368,73 +361,21 @@ for lib in `find $APP_LIB -name '*.so'`; do
   done
 done
 
-# Some libs are loaded at runtime, thankfully DYLD_FALLBACK_LIBRARY_PATH will be searched for them
-copy_lib_recursively /opt/local/lib/libmp3lame.dylib
-
-
-# --- deduplicate libs ---
-
-echo "Deduplicating libs"
-
-for lib in $(find $APP_LIB -name '*.dylib' | sort -V -r); do
-  if [ -L "$lib" ]; then
-    continue
-  fi
-
-  for potential_duplicate in $(find $APP_LIB -type f -name '*.dylib' | sort -V -r); do
-    if [ "$potential_duplicate" = "$lib" ]; then
-      continue
-    fi
-
-    if cmp -s "$potential_duplicate" "$lib"; then
-      echo "Replacing $(basename $potential_duplicate) with symlink to $(basename $lib)"
-      rm "$potential_duplicate"
-      ln -s "$(basename "$lib")" "$potential_duplicate"
-    fi
-  done
-done
-
-
-# --- update lib linking ---
-
-relink_lib () {
-  local lib=$1
-  local lib_basename=`basename $lib`
-
-  LIB_LIBS=`otool -L $lib | egrep '^\s+/(opt|usr)/local/' | grep -v $lib_basename | awk '{print $1}'`
-
-  chmod 644 $lib
-
-  for lib_lib in $LIB_LIBS; do
-    install_name_tool -change $lib_lib @executable_path/../lib/$(basename $lib_lib) $lib
-  done
-
-  chmod 444 $lib
-}
-
-echo "Relinking libs to relative bundle paths"
-
-for lib in $(find $APP_LIB -type f -name '*.dylib' -or -name '*.so'); do
-  relink_lib $lib
-done
-
-if [ -n "$CODE_SIGN_ID" ]; then
-  echo "Signing the bundled libraries"
-
-  for lib in $(find $APP_LIB -type f -name '*.dylib' -or -name '*.so'); do
-    code_sign_file $lib
-  done
+# Some libs are loaded at runtime
+if grep -q "^#define HAVE_EXTERNAL_LAME " "src/config.h"; then
+  copy_lib_recursively /opt/local/lib/libmp3lame.dylib
 fi
 
-if [ "$UI_TYPE" = "GTK3" ]; then
-  # these copied cache files would otherwise point to local files
-  sed -i '' -e 's,/opt/local,@executable_path/..,' $APP_ETC/gtk-3.0/gtk.immodules 
-  sed -i '' -e 's,/opt/local,@executable_path/..,' $APP_ETC/gtk-3.0/gdk-pixbuf.loaders
-  sed -i '' -e 's,/opt/local,@executable_path/..,' $(find $APP_LIB/gdk-pixbuf-* -name loaders.cache)
+# ffmpeg
+if grep -q "^#define EXTERNAL_FFMPEG " "src/config.h"; then
+  copy_lib_recursively "$(find /opt/local/lib -type f -name 'libavformat.*.dylib')"
+  copy_lib_recursively "$(find /opt/local/lib -type f -name 'libavcodec.*.dylib')"
+  copy_lib_recursively "$(find /opt/local/lib -type f -name 'libavutil.*.dylib')"
+  copy_lib_recursively "$(find /opt/local/lib -type f -name 'libswscale.*.dylib')"
+  copy_lib_recursively "$(find /opt/local/lib -type f -name 'libswresample.*.dylib')"
 fi
 
-
-# --- copy tools ---
+# --- copy tools ---------------------------------------------------------------
 
 BIN_DIR=$BUILD_DIR/bin
 mkdir $BIN_DIR
@@ -461,22 +402,99 @@ for tool in $TOOLS ; do
 
   for lib in $LOCAL_LIBS; do
       copy_lib_recursively $lib
-
-      # relink the emu binary to the relative lib copy
-      install_name_tool -change $lib @executable_path/../lib/$(basename $lib) $APP_BIN/$tool
   done
-
-  # Sign binary
-  echo -n "[sign] "
-  if [ -n "$CODE_SIGN_ID" ]; then
-    code_sign_file $APP_BIN/$tool
-  fi
 
   # ready
   echo
 done
 
-# --- create general command line launchers ---
+
+# --- deduplicate libs ---------------------------------------------------------
+
+echo "Deduplicating libs"
+
+for lib in $(find $APP_LIB -name '*.dylib' | sort -V -r); do
+  if [ -L "$lib" ]; then
+    continue
+  fi
+
+  for potential_duplicate in $(find $APP_LIB -type f -name '*.dylib' | sort -V -r); do
+    if [ "$potential_duplicate" = "$lib" ]; then
+      continue
+    fi
+
+    if cmp -s "$potential_duplicate" "$lib"; then
+      echo "Replacing $(basename $potential_duplicate) with symlink to $(basename $lib)"
+      rm "$potential_duplicate"
+      ln -s "$(basename "$lib")" "$potential_duplicate"
+    fi
+  done
+done
+
+
+# --- update linking for distribution ------------------------------------------
+
+relink () {
+  local thing=$1
+  local thing_basename=`basename $lib`
+
+  #
+  # Any link to a lib in /opt/local is updated to @rpath/$lib
+  #
+
+  set +o pipefail
+  THING_LIBS=`otool -L $thing | egrep '^\s+/(opt|usr)/local/' | awk '{print $1}'`
+  set -o pipefail
+
+  for thing_lib in $THING_LIBS; do
+    install_name_tool -change $thing_lib @rpath/$(basename $thing_lib) $thing
+  done
+
+  #
+  # Update the shared library identification name - ignores non shared libraries
+  # so we can blindly call it.
+  #
+
+  install_name_tool -id @rpath/$thing_basename $thing
+
+  #
+  # If any existing rpaths exist, remove them.
+  # Then an an rpath to our bundled lib folder.
+  #
+
+  set +o pipefail
+  THING_RPATHS=$(otool -l $thing | grep -A2 LC_RPATH | grep path | sed -E 's/^[[:space:]]+path[[:space:]]+(.*)[[:space:]]+\(offset.*$/\1/')
+  set -o pipefail
+
+  for rpath in $THING_RPATHS; do
+    install_name_tool -delete_rpath $rpath $thing
+  done
+  
+  install_name_tool -add_rpath @executable_path/../lib $thing
+}
+
+echo "Relinking libs and binaries to relative bundle paths"
+
+for lib in $(find $APP_LIB -type f -name '*.dylib' -or -name '*.so'); do
+  relink $lib
+  chmod 444 $lib
+done
+
+for bin in $BINARIES $TOOLS; do
+  relink $APP_BIN/$bin
+  chmod 555 $APP_BIN/$bin
+done
+
+if [ "$UI_TYPE" = "GTK3" ]; then
+  # these copied cache files would otherwise point to local files
+  sed -i '' -e 's,/opt/local,@executable_path/..,' $APP_ETC/gtk-3.0/gtk.immodules 
+  sed -i '' -e 's,/opt/local,@executable_path/..,' $APP_ETC/gtk-3.0/gdk-pixbuf.loaders
+  sed -i '' -e 's,/opt/local,@executable_path/..,' $(find $APP_LIB/gdk-pixbuf-* -name loaders.cache)
+fi
+
+
+# --- create general command line launchers ------------------------------------
+
 echo "  creating command line launchers"
 # TODO replace these with a small C program that we can code sign.
 for emu in $EMULATORS $TOOLS; do
@@ -500,9 +518,9 @@ cat << "HEREDOC" | sed 's/^  //' > "$BIN_DIR/README.txt"
 HEREDOC
 
 
-# --- copy docs ---
+# --- copy docs ----------------------------------------------------------------
+
 echo "  copying documents"
-cp $TOP_DIR/FEEDBACK $BUILD_DIR/FEEDBACK.txt
 
 mkdir $BUILD_DIR/doc
 cp README $BUILD_DIR/doc/README.txt
@@ -513,8 +531,9 @@ if [ "$UI_TYPE" != "GTK3" ]; then
   cp "$TOP_DIR/doc/readmes/Readme-$UI_TYPE.txt" $BUILD_DIR/doc/
 fi
 
-# --- copy fonts ---
-FONTS="CBM.ttf"
+# --- copy fonts ---------------------------------------------------------------
+
+FONTS="C64_Pro_Mono-STYLE.ttf"
 echo "  copying fonts"
 for FONT in $FONTS ; do
   cp "$TOP_DIR/data/common/$FONT" "$APP_COMMON/"
@@ -523,17 +542,43 @@ done
 if [ "$UI_TYPE" = "GTK3" ]; then
   # --- copy vice.gresource ---
   echo "  copying vice.gresource"
-  cp "src/arch/gtk3/data/vice.gresource" "$APP_COMMON/"
+  cp "data/common/vice.gresource" "$APP_COMMON/"
 fi
 
-# --- codesign the .app bundles ---
+
+# --- wtf permissions. ---------------------------------------------------------
+
+# platypus produces 777 binaries, which is awesome.
+
+find $BUILD_DIR -type f -exec chmod a-w {} \;
+find $BUILD_DIR -type d -exec chmod 755 {} \;
+
+
+# --- code signing (for Apple notarisation) ------------------------------------
+
+code_sign_file () {
+  codesign -s "$CODE_SIGN_ID" --timestamp --options runtime -f "$1"
+}
+
 if [ -n "$CODE_SIGN_ID" ]; then
+  echo "  code signing"
+
+  for lib in $(find $APP_LIB -type f -name '*.dylib' -or -name '*.so'); do
+    code_sign_file $lib
+  done
+
+  for bin in $BINARIES $TOOLS ; do
+    code_sign_file $APP_BIN/$bin
+  done
+
   for app in $(find $BUILD_DIR -type d -name '*.app'); do
     code_sign_file $app
   done
 fi
 
-# --- make dmg? ---
+
+# --- make dmg? ----------------------------------------------------------------
+
 if [ x"$ZIP" = "xnozip" ]; then
   echo "ready. created dist directory: $BUILD_DIR"
   du -sh $BUILD_DIR
@@ -564,8 +609,8 @@ else
   rm -f $BUILD_TMP_IMG
 
   # Sign the final DMG
-  echo "  signing DMG"
   if [ -n "$CODE_SIGN_ID" ]; then
+    echo "  signing DMG"
     code_sign_file $BUILD_IMG
   fi
 
@@ -573,6 +618,8 @@ else
   du -sh $BUILD_IMG
   md5 -q $BUILD_IMG
 fi
+
+# --- show warnings ------------------------------------------------------------
 
 if [ -z "$CODE_SIGN_ID" ]; then
   cat << "  HEREDOC" | sed 's/^ *//'
@@ -597,5 +644,3 @@ if test x"$ENABLEARCH" = "xyes"; then
 
   HEREDOC
 fi
-
-
