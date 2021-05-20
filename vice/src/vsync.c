@@ -473,7 +473,9 @@ void vsync_do_end_of_line(void)
 
     if (!speed_eval_suspended && (tick_now - last_sync_tick) > ticks_per_frame * 5) {
         if (last_sync_tick != 0) {
-            log_warning(LOG_DEFAULT, "sync is far too late, resetting sync");
+        	//Krystof: Willfully blocking this debug statement.  It's new in VICE 3.5 and I've not been
+        	//able to stop it or see adverse effects yet.
+            //log_warning(LOG_DEFAULT, "sync is far too late, resetting sync");
         }
         vsync_suspend_speed_eval();
     }
