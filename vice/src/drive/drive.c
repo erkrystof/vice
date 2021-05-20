@@ -832,8 +832,8 @@ static void drive_led_update(diskunit_context_t *unit, drive_t *drive, int base)
     if (led_pwm1 != drive->led_last_pwm
         || my_led_status != drive->old_led_status) {
     	//update_shm_drive_status(drive->mynumber, my_led_status);
-    		log_warning(drive_log, "Hey! Drive Unit: %d Id : %d", drive->unit,
-    				drive->id);
+    		log_warning(drive_log, "Hey! Drive Unit: %d Drive : %d", drive->unit,
+    				drive->drive);
         ui_display_drive_led(drive->unit, base, led_pwm1,
                              (my_led_status & 2) ? 1000 : 0);
         drive->led_last_pwm = led_pwm1;
