@@ -342,6 +342,8 @@ extern struct diskunit_context_s *diskunit_context[NUM_DISK_UNITS];
 
 extern int rom_loaded;
 
+extern void init_drive_led_shm(void);
+extern void update_shm_drive_status(unsigned int driveNumber, int driveLedStatus);
 extern int drive_init(void);
 extern int drive_enable(struct diskunit_context_s *drv);
 extern void drive_disable(struct diskunit_context_s *drv);
