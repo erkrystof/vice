@@ -47,7 +47,7 @@ wget -O vice-3.6.tar.gz https://sourceforge.net/projects/vice-emu/files/releases
 tar xvfz vice-3.6.tar.gz
 
 log "Build VICE 3.6"
-cd vice-3.6
+cd vice-3.6.0
 ./autogen.sh 
 
  #change --prefix=<dir> if you want the binaries elsewhere
