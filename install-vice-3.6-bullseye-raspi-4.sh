@@ -22,7 +22,7 @@ log () {
 log "Installing VICE 3.6 on RasPi 4"
 
 sudo apt update -y
-sudo apt full-upgrade -y
+sudo apt upgrade -y
 
 log "Install previous SDL local build dependencies - but may be needed for VICE compile"
 
