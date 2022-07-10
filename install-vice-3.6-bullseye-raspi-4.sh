@@ -3,11 +3,11 @@
 # This script does a rough install of VICE 3.6 on the RasPi 4, Bullseye Release
 # Last known working on 2022-04-04-raspios-bullseye-armhf-lite.img.xz
 # You can download and execute it directly via:
-# wget -O - https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.6-raspi-4.sh | bash
+# wget -O - https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.6-bullseye-raspi-4.sh | bash
 # or download manually:
-# wget https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.6-raspi-4.sh
-# chmod +x install-vice-3.6-raspi-4.sh
-# ./install-vice-3.6-raspi-4.sh
+# wget https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.6-bullseye-raspi-4.sh
+# chmod +x install-vice-3.6-bullseye-raspi-4.sh
+# ./install-vice-3.6-bullseye-raspi-4.sh
 
 set -e
 
