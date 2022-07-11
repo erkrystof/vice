@@ -49,7 +49,7 @@ log "SDL2 dependencies"
 sudo apt-get install -y libudev-dev libdbus-1-dev libasound2-dev
 
 log "SDL2 compile/install"
-wget https://www.libsdl.org/release/SDL2-2.0.22.tar.gz
+wget -O SDL2-2.0.22.tar.gz https://www.libsdl.org/release/SDL2-2.0.22.tar.gz
 tar -xzf SDL2-2.0.22.tar.gz
 cd SDL2-2.0.22
 
@@ -66,7 +66,7 @@ log "SDL2_image dependencies"
 sudo apt-get install -y libjpeg9-dev libpng-dev
 
 log "SDL2_image compile/install"
-wget https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.5.tar.gz
+wget -O SDL2_image-2.0.5.tar.gz https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.5.tar.gz
 tar -xzf SDL2_image-2.0.5.tar.gz
 cd SDL2_image-2.0.5
 
@@ -79,7 +79,7 @@ log "SDL2_mixer dependencies"
 sudo apt-get install -y libmpg123-dev libvorbis-dev libflac-dev
 
 log "SDL2_mixer compile/install"
-wget https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz
+wget -O SDL2_mixer-2.0.4.tar.gz https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz
 tar -xzf SDL2_mixer-2.0.4.tar.gz
 cd SDL2_mixer-2.0.4
 
@@ -92,7 +92,7 @@ log "SDL2_ttf dependencies"
 sudo apt-get install -y libgl1-mesa-dev libfreetype6-dev
 
 log "SDL2_ttf compile/install"
-wget https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.15.tar.gz
+wget -O SDL2_ttf-2.0.15.tar.gz https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.15.tar.gz
 tar -xzf SDL2_ttf-2.0.15.tar.gz
 cd SDL2_ttf-2.0.15
 
