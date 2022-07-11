@@ -142,3 +142,5 @@ make -j $(nproc)
 log "Install VICE"
 
 make install
+
+log "Done!  You can delete vice-src and sdl-work at your leisure."
