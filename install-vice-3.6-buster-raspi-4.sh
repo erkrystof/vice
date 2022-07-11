@@ -24,6 +24,83 @@ log "Installing VICE 3.6 on RasPi 4"
 sudo apt update -y
 sudo apt upgrade -y
 
+log "Compilation Dependencies"
+sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzip
+
+if [ -d ~/sdl-work ] 
+then
+    echo "Directory sdl-work exists already.  Heading on in." 
+else
+    mkdir ~/sdl-work
+fi
+cd ~/sdl-work
+
+log "SDL2 dependencies"
+sudo apt-get install -y libudev-dev libdbus-1-dev libasound2-dev
+
+log "SDL2 compile/install"
+wget https://www.libsdl.org/release/SDL2-2.0.22.tar.gz
+tar -xzf SDL2-2.0.22.tar.gz
+cd SDL2-2.0.22
+
+./configure
+make
+sudo make install
+cd ..
+
+log "SDL2_image dependencies"
+sudo apt-get install -y libjpeg9-dev libpng-dev
+
+log "SDL2_image compile/install"
+wget https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.5.tar.gz
+tar -xzf SDL2_image-2.0.5.tar.gz
+cd SDL2_image-2.0.5
+
+./configure
+make
+sudo make install
+cd ..
+
+log "SDL2_mixer dependencies"
+sudo apt-get install -y libmpg123-dev libvorbis-dev libflac-dev
+
+log "SDL2_mixer compile/install"
+wget https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz
+tar -xzf SDL2_mixer-2.0.5.tar.gz
+cd SDL2_mixer-2.0.5
+
+./configure
+make
+sudo make install
+cd ..
+
+log "SDL2_ttf dependencies"
+sudo apt-get install -y libgl1-mesa-dev libfreetype6-dev
+
+log "SDL2_ttf compile/install"
+wget https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.15.tar.gz
+tar -xzf SDL2_ttf-2.0.15.tar.gz
+cd SDL2_ttf-2.0.15
+
+./configure
+make
+sudo make install
+cd ..
+
+log "Compiling SDL 2.0.22"
+
+
+#image_fname="SDL2_image-2.0.5"
+#image_url="${libsdl_url}/projects/SDL_image/release/${image_fname}.tar.gz"
+
+#mixer_fname="SDL2_mixer-2.0.4"
+#mixer_url="${libsdl_url}/projects/SDL_mixer/release/${mixer_fname}.tar.gz"
+
+#ttf_fname="SDL2_ttf-2.0.15"
+#ttf_url="${libsdl_url}/projects/SDL_ttf/release/${ttf_fname}.tar.gz"
+
+
+ 
 log "Install previous SDL local build dependencies - but may be needed for VICE compile"
 
 sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzip xmlstarlet \
