@@ -14,7 +14,7 @@ set -e
 trap 'catch $? $LINENO' EXIT
 
 catch() {
-  echo "Error on Exit!"
+  echo "Exiting!"
   if [ "$1" != "0" ]; then
     # error handling goes here
     echo "Error $1 occurred on $2"
