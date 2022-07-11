@@ -14,7 +14,7 @@ set -e
 trap 'catch $? $LINENO' EXIT
 
 catch() {
-  echo "catching!"
+  echo "Error on Exit!"
   if [ "$1" != "0" ]; then
     # error handling goes here
     echo "Error $1 occurred on $2"
@@ -53,7 +53,11 @@ wget https://www.libsdl.org/release/SDL2-2.0.22.tar.gz
 tar -xzf SDL2-2.0.22.tar.gz
 cd SDL2-2.0.22
 
-./configure
+./configure --host=arm-raspberry-linux-gnueabihf \
+  --disable-video-opengl --disable-video-x11 \
+  --disable-pulseaudio --disable-esd \
+  --disable-video-mir --disable-video-wayland
+
 make
 sudo make install
 cd ..
