@@ -35,7 +35,14 @@ sudo apt update -y
 sudo apt upgrade -y
 
 log "Compilation Dependencies"
-sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzip
+
+sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzip xmlstarlet \
+  python3-pyudev ca-certificates libasound2-dev libudev-dev libibus-1.0-dev libdbus-1-dev \
+  fcitx-libs-dev libsndio-dev libx11-dev libxcursor-dev libxext-dev libxi-dev libxinerama-dev \
+  libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
+  libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
+  devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev 
+
 
 if [ -d ~/sdl-work ] 
 then
@@ -101,14 +108,10 @@ make
 sudo make install
 cd ..
 
-log "Download VICE dependencies"
+log "Additional VICE dependencies"
 
-sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzip xmlstarlet \
-  python3-pyudev ca-certificates libasound2-dev libudev-dev libibus-1.0-dev libdbus-1-dev \
-  fcitx-libs-dev libsndio-dev libx11-dev libxcursor-dev libxext-dev libxi-dev libxinerama-dev \
-  libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
-  libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
-  devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev 
+sudo apt install -y libmpg123-dev libpng-dev zlib1g-dev libasound2-dev libvorbis-dev libflac-dev \
+ libpcap-dev automake bison flex subversion libjpeg-dev portaudio19-dev texinfo xa65 dos2unix 
 
 if [ -d ~/vice-src ]
 then
