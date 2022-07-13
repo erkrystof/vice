@@ -1,13 +1,13 @@
 #! /bin/bash
 
-# This script does a rough install of VICE 3.6 on the RasPi 4, Buster Release
+# This script does a rough install of VICE 3.6.1 on the RasPi 4, Buster Release
 # Last known working on 2022-04-04-raspios-buster-armhf-lite.img
 # You can download and execute it directly via:
-# wget -O - https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.6-buster-raspi-4.sh | bash
+# wget -O - https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.6.1-buster-raspi-4.sh | bash
 # or download manually:
-# wget https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.6-buster-raspi-4.sh
-# chmod +x install-vice-3.6-buster-raspi-4.sh
-# ./install-vice-3.6-buster-raspi-4.sh
+# wget https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.6.1-buster-raspi-4.sh
+# chmod +x install-vice-3.6.1-buster-raspi-4.sh
+# ./install-vice-3.6.1-buster-raspi-4.sh
 
 set -e
 
@@ -29,7 +29,7 @@ log () {
   echo ""
 }
 
-log "Installing VICE 3.6 on RasPi 4"
+log "Installing VICE 3.6.1 on RasPi 4 - Buster Variant"
 
 sudo apt update -y
 sudo apt upgrade -y
@@ -121,19 +121,19 @@ else
 fi
 cd ~/vice-src
 
-log "Download VICE 3.6"
+log "Download VICE 3.6.1"
 
-wget -O vice-3.6.tar.gz https://sourceforge.net/projects/vice-emu/files/releases/vice-3.6.tar.gz/download
-tar xvfz vice-3.6.tar.gz
+wget -O vice-3.6.1.tar.gz https://sourceforge.net/projects/vice-emu/files/releases/vice-3.6.1.tar.gz/download
+tar xvfz vice-3.6.1.tar.gz
 
 log "Autogen VICE"
-cd vice-3.6.0
+cd vice-3.6.1
 ./autogen.sh 
 
 log "Configure VICE"
  
 #change --prefix=<dir> if you want the binaries elsewhere
-./configure --prefix=/home/pi/vice-3.6 --enable-sdlui2 --without-oss --enable-ethernet \
+./configure --prefix=/home/pi/vice-3.6.1 --enable-sdlui2 --without-oss --enable-ethernet \
  --disable-catweasel --without-pulse --enable-x64 --disable-pdf-docs --with-fastsid
  
 log "Make VICE"
