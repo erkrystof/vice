@@ -41,72 +41,10 @@ sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzi
   fcitx-libs-dev libsndio-dev libx11-dev libxcursor-dev libxext-dev libxi-dev libxinerama-dev \
   libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
   libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
-  devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev 
+  devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev \
+  libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
 
-if [ -d ~/sdl-work ] 
-then
-    echo "Directory sdl-work exists already.  Heading on in." 
-else
-    mkdir ~/sdl-work
-fi
-cd ~/sdl-work
-
-log "SDL2 dependencies"
-sudo apt-get install -y libudev-dev libdbus-1-dev libasound2-dev
-
-log "SDL2 compile/install"
-wget -O SDL2-2.0.22.tar.gz https://www.libsdl.org/release/SDL2-2.0.22.tar.gz
-tar -xzf SDL2-2.0.22.tar.gz
-cd SDL2-2.0.22
-
-./configure --host=arm-raspberry-linux-gnueabihf \
-  --disable-video-opengl --disable-video-x11 \
-  --disable-pulseaudio --disable-esd \
-  --disable-video-mir --disable-video-wayland
-
-make
-sudo make install
-cd ..
-
-log "SDL2_image dependencies"
-sudo apt-get install -y libjpeg9-dev libpng-dev
-
-log "SDL2_image compile/install"
-wget -O SDL2_image-2.0.5.tar.gz https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.5.tar.gz
-tar -xzf SDL2_image-2.0.5.tar.gz
-cd SDL2_image-2.0.5
-
-./configure
-make
-sudo make install
-cd ..
-
-log "SDL2_mixer dependencies"
-sudo apt-get install -y libmpg123-dev libvorbis-dev libflac-dev
-
-log "SDL2_mixer compile/install"
-wget -O SDL2_mixer-2.0.4.tar.gz https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz
-tar -xzf SDL2_mixer-2.0.4.tar.gz
-cd SDL2_mixer-2.0.4
-
-./configure
-make
-sudo make install
-cd ..
-
-log "SDL2_ttf dependencies"
-sudo apt-get install -y libgl1-mesa-dev libfreetype6-dev
-
-log "SDL2_ttf compile/install"
-wget -O SDL2_ttf-2.0.15.tar.gz https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.15.tar.gz
-tar -xzf SDL2_ttf-2.0.15.tar.gz
-cd SDL2_ttf-2.0.15
-
-./configure
-make
-sudo make install
-cd ..
 
 log "Additional VICE dependencies"
 
