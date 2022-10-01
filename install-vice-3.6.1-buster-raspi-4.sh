@@ -70,7 +70,7 @@ sudo make install
 cd ..
 
 log "SDL2_image dependencies"
-sudo apt-get install -y libjpeg9-dev libpng-dev
+sudo apt-get install -y libjpeg62-turbo-dev libpng-dev
 
 log "SDL2_image compile/install"
 wget -O SDL2_image-2.0.5.tar.gz https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.5.tar.gz
