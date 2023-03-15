@@ -35,7 +35,7 @@ else
     wget -P testprograms/ https://raw.githubusercontent.com/erkrystof/vice/master/testprograms/Disco_Apocalypso_by_SHAPE.d64
     wget -P testprograms/ https://raw.githubusercontent.com/erkrystof/vice/master/testprograms/RemainsBD.d64
     wget -P testprograms/ https://raw.githubusercontent.com/erkrystof/vice/master/testprograms/fairlight-2600.d64
-    wget -P testprograms/ https://raw.githubusercontent.com/erkrystof/vice/master/testprograms/ThePumpkins-Disk1.d64
+    wget -P testprograms/ https://raw.githubusercontent.com/erkrystof/vice/master/testprograms/shine_on--style.d64
 fi
 
 
