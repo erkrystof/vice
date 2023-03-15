@@ -4,11 +4,11 @@
 # VICE Version: 3.7.1
 # Raspberry Pi OS: 2023-02-21-raspios-buster-armhf-lite.img.xz
 # You can download and execute it directly via:
-# wget -O - https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.7.1-buster-raspi-4.sh | bash
+# wget -O - https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.7.1-raspi-4-buster-2023-02-21.sh | bash
 # or download manually and execute:
-# wget https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.7.1-buster-raspi-4.sh
-# chmod +x install-vice-3.7.1-buster-raspi-4.sh
-# ./install-vice-3.7.1-buster-raspi-4.sh
+# wget https://raw.githubusercontent.com/erkrystof/vice/master/install-vice-3.7.1-raspi-4-buster-2023-02-21.sh
+# chmod +x install-vice-3.7.1-raspi-4-buster-2023-02-21.sh
+# ./install-vice-3.7.1-raspi-4-buster-2023-02-21.sh
 
 set -e
 
