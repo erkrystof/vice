@@ -64,7 +64,7 @@ cd vice-${KIO_VICE_VERSION}
 log "Configure VICE"
  
 #change --prefix=<dir> if you want the binaries elsewhere
-./configure --prefix=~/vice-${KIO_VICE_VERSION} --enable-sdlui2 --without-oss --enable-ethernet \
+./configure --prefix=~/vice-${KIO_VICE_VERSION} --enable-sdl2ui --without-oss --enable-ethernet \
  --disable-catweasel --without-pulse --enable-x64 --disable-pdf-docs --with-fastsid
  
 log "Make VICE"
