@@ -64,7 +64,7 @@ cd vice-${KIO_VICE_VERSION}
 log "Configure VICE"
  
 #change --prefix=<dir> if you want the binaries elsewhere
-./configure --prefix=/home/pi/vice-${KIO_VICE_VERSION} --enable-sdlui2 --without-oss --enable-ethernet \
+./configure --prefix=~/vice-${KIO_VICE_VERSION} --enable-sdlui2 --without-oss --enable-ethernet \
  --disable-catweasel --without-pulse --enable-x64 --disable-pdf-docs --with-fastsid
  
 log "Make VICE"
@@ -74,3 +74,7 @@ make -j $(nproc)
 log "Install VICE"
 
 make install
+
+log "Done!  You can delete vice-src and sdl-work at your leisure.  Vice is installed at ~/vice-${KIO_VICE_VERSION}"
+
+cd ~/vice-${KIO_VICE_VERSION}/bin
