@@ -11,7 +11,7 @@
 # ./install-vice-3.7.1-raspi-4-bullseye-2023-02-21.sh
 
 set -e
-
+#3.6.1, 3.5, 3.4
 KIO_VICE_VERSION=3.6.1
 KIO_RASPI_OS_NAME=Buster
 
