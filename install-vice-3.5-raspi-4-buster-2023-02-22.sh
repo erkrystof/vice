@@ -13,7 +13,7 @@
 set -e
 
 KIO_VICE_VERSION=3.5
-KIO_RASPI_OS_NAME=Bullseye
+KIO_RASPI_OS_NAME=Buster
 
 log () {
   echo ""
