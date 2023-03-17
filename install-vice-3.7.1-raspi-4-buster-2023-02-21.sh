@@ -151,3 +151,5 @@ make install
 log "Done!  You can delete vice-src and sdl-work at your leisure.  Vice is installed at ${HOME}/vice-${KIO_VICE_VERSION}"
 
 cd ~/vice-${KIO_VICE_VERSION}/bin
+
+ls

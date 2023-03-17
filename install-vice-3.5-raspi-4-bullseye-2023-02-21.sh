@@ -15,6 +15,16 @@ set -e
 KIO_VICE_VERSION=3.5
 KIO_RASPI_OS_NAME=Bullseye
 
+trap 'catch $? $LINENO' EXIT
+
+catch() {
+  echo "Exiting!"
+  if [ "$1" != "0" ]; then
+    # error handling goes here
+    echo "Error $1 occurred on $2"
+  fi
+}
+
 log () {
   echo ""
   echo "****************************************"
@@ -78,3 +88,5 @@ make install
 log "Done!  You can delete vice-src and sdl-work at your leisure.  Vice is installed at ${HOME}/vice-${KIO_VICE_VERSION}"
 
 cd ${HOME}/vice-${KIO_VICE_VERSION}/bin
+
+ls
