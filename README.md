@@ -5,7 +5,9 @@ Patches I overlay on top of VICE for circuit work...
 
 The HEAD of this repo is generally a version of VICE as imported from SVN.
 
+
 Currently that's 3.5.
+
 
 See the [releases](https://github.com/erkrystof/vice/releases) for the various versions.
 
